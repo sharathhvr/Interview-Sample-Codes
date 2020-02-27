@@ -1,0 +1,58 @@
+Objective
+Design, document, and implement a system that parses a proprietary packet structure. Your
+program should take the raw buffer of packet data from a file and produce the parsed output on
+STDOUT.
+
+Requirements
+Serialization / deserialization process
+● packet: C struct containing the data
+● packet_buff: uint8_t[] buffer for holding the serialized packet data
+● serialize(packet) => packet_buff
+● deserialize(packet_buff) => packet
+Packet Structure
+● Each packet is serialized to a buffer of maximum length 128 bytes
+Header structure
+Name Data Type
+SRC_ADDR uint64
+DST_ADDR uint64
+KEY uint32
+VALUE int32
+Multi-byte values are big endian encoded
+● E.g. a uint16 value of 0xABCD is serialized to [0xAB, 0xCD]
+Members are encoded in the order they are defined above (top to bottom).
+Negative values are encoded as two’s complement
+● E.g. -2 in an int16 value is encoded as [0xFF, 0xFE]
+
+Example input / output of C program
+
+Input Output
+[0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
+0, 3, 0, 0, 0, 4]
+
+SRC_ADDR=1 DST_ADDR=2 KEY=3
+VALUE=4
+
+[0, 0, 0, 0, 0, 0, 18, 52, 0, 0, 0, 0, 0, 0, 67, 33,
+0, 0, 0, 55, 255, 255, 234, 193]
+
+SRC_ADDR=4660 DST_ADDR=17185
+KEY=55 VALUE=-5439
+
+[17, 34, 51, 68, 85, 102, 119, 136, 136, 119,
+102, 85, 68, 51, 34, 17, 7, 91, 31, 119, 0, 0, 0,
+0]
+
+SRC_ADDR=1234605616436508552
+DST_ADDR=9833440827789222417
+KEY=123412343 VALUE=0
+
+Delivered Components
+● C program for parsing the packets
+○ It should take a single command line argument, filename, which is a string
+designating the filename to read the binary packet data from.
+○ It should print the parsed result to STDOUT with a return code of 0 or, in the case
+of an error, display the error message with a return code of 1
+
+● Python3 unit tests (ideally written using pytest) that properly express the requirements
+● Makefile that builds the system with a “build” target and a “run” target that executes the
+unit tests against the compiled C program and indicates if the tests passed or failed
